@@ -91,6 +91,8 @@
             "title_highlight": "",
             "subtitle": "",
             "subtitle_unit": "/ bottle",
+            "quantity_per_unit": 1,
+            "variant_id": "",
             "price": 19,
             "compare_price": 52.99,
             "save_badge": "Save 51%",
