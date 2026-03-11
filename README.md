@@ -19,13 +19,131 @@ The flagship custom section — a conversion-focused product information layout 
 | Feature | Description |
 |---|---|
 | **Trust Signals** | Up to 4 configurable trust blocks with country flag images, optional text labels, pulse dot animation, icon/image support, and popup modal link behavior |
-| **Open Popup / Modal** | Click any trust signal link to load the content in a modal — works with same-origin Shopify pages (full fetch + render) and external URLs (direct iframe) |
+| **Open Popup / Modal** | Click any trust signal link to load content in a modal — works with same-origin Shopify pages (full fetch + render) and external URLs (direct iframe) |
 | **Media Carousel** | Scrollable image/video carousel with configurable visible cards: 1, 1.5, 2, or **2.5** on mobile |
-| **Bundle Options** | Product bundle picker with configurable image fit (`cover`, `contain`, `fill`, `auto`) and aspect ratio (`1:1`, `4:5`, `auto`) |
+| 📦 **Bundle Options** | App-free product bundle picker — configurable image fit, aspect ratio, pricing, and variant selection. **No bundle app required.** |
 | **Main Image Badge** | Fully customizable badge overlay: font size, font color, padding, position (4 corners), margin, and icon size — all via the customizer |
 | **Benefit Icons** | Icon + text benefit list with configurable layout |
-| **Subscription Toggle** | One-click subscribe & save toggle with dynamic price updates |
+| 🔄 **Subscription Toggle** | Built-in subscribe & save toggle — dynamically switches prices and selling plans. **No subscription app required for display.** |
 | **Quantity & Add to Cart** | Integrated quantity selector and ATC form using `routes.cart_add_url` |
+
+---
+
+## 📦 Bundle Options — Deep Dive
+
+> **Zero app dependencies.** The bundle picker is a fully self-contained Liquid + JS + CSS implementation. No Kaching, No Bundle Bear, no third-party code needed.
+
+### What it does
+- Displays multiple product variants as visual "bundle cards" — each with its own image, title, quantity, and price
+- Selecting a bundle card updates the ATC form's variant ID, quantity, and displayed price in real time
+- Bundle images are fully configurable: choose fit mode and aspect ratio to match your product imagery
+
+### Bundle Image Options
+
+| Setting | Options | Effect |
+|---|---|---|
+| **Image fit** | `cover` | Fills the card; crops if needed. Best for lifestyle shots |
+| | `contain` | Shows the full image with letterboxing. Best for product-on-white |
+| | `fill` | Stretches to fill exactly — use with caution |
+| | `auto` | Natural image dimensions |
+| **Aspect ratio** | `1:1 Square` | Uniform square cards — clean grid look |
+| | `4:5 Portrait` | Taller cards — great for supplement bottles |
+| | `Auto` | Matches natural image proportions |
+
+### How the Bundle Picker works
+
+```
+Theme Customizer
+  bundle_img_fit ──────────────────────┐
+  bundle_img_ratio ────────────────────┤
+                                       ▼
+                            CSS Custom Properties injected
+                            by Liquid at render time:
+                              --pia-bundle-img-fit
+                              --pia-bundle-img-ratio
+                                       │
+                                       ▼
+                         .product-info-advanced__bundle-img
+                           object-fit:   var(--pia-bundle-img-fit)
+                           aspect-ratio: var(--pia-bundle-img-ratio)
+                                       │
+                    ┌──────────────────┴──────────────────┐
+                    │                                     │
+                    ▼                                     ▼
+           User clicks bundle card             JS updates the form:
+                    │                           - variant_id hidden input
+                    │                           - quantity input
+                    │                           - displayed price text
+                    ▼                                     │
+           Card gets .is-selected state                   ▼
+           (visual highlight ring)           Add to Cart submits
+                                             correct bundle to cart
+```
+
+---
+
+## 🔄 Subscription Toggle — Deep Dive
+
+> **Built-in subscribe & save — no app required for the toggle logic.** Works alongside any subscription app (Recharge, Skio, Bold, etc.) that reads standard Shopify selling plan form fields.
+
+### What it does
+- Renders a one-click toggle between **One-time purchase** and **Subscribe & Save**
+- When subscribe mode is active: dynamically swaps the displayed price to the subscription price and injects the correct `selling_plan` field into the ATC form
+- When one-time mode is active: removes the `selling_plan` field so the standard one-time price and variant apply
+- Price swap is instant — no page reload, no AJAX
+
+### Subscription Toggle flow
+
+```
+Product page loads
+        │
+        ▼
+ Liquid renders both prices:
+  - One-time price (from variant)
+  - Subscribe price (from selling_plan_allocation)
+        │
+        ▼
+ Toggle renders in DEFAULT state
+ (configured in customizer: one-time or subscribe)
+        │
+        ├─────────────────────────────────────────┐
+        │                                         │
+        ▼                                         ▼
+ User clicks "Subscribe & Save"        User clicks "One-time"
+        │                                         │
+        ▼                                         ▼
+ JS sets isSubscribed = true           JS sets isSubscribed = false
+        │                                         │
+        ▼                                         ▼
+ - Toggle gets .is-active class        - Toggle loses .is-active class
+ - Price display swaps to              - Price display swaps back to
+   subscribe price                       one-time price
+ - Hidden <input name="selling_plan">  - selling_plan input REMOVED
+   injected into ATC form                from ATC form
+        │                                         │
+        └──────────────┬──────────────────────────┘
+                       │
+                       ▼
+              Add to Cart submits
+              with correct selling_plan
+              (or without for one-time)
+                       │
+                       ▼
+           Subscription app (Recharge,
+           Skio, Bold, etc.) reads the
+           standard selling_plan field
+           and processes accordingly
+```
+
+### Compatibility with subscription apps
+
+| App | How it works |
+|---|---|
+| **Recharge** | Reads `selling_plan` from the ATC form — fully compatible |
+| **Skio** | Same standard selling plan field — fully compatible |
+| **Bold Subscriptions** | Reads Shopify selling plan allocations — fully compatible |
+| **Native Shopify Subscriptions** | Built on the same selling plan API — fully compatible |
+| **Any other app** | As long as the app processes `selling_plan` from form data — compatible |
 
 ---
 
@@ -81,28 +199,6 @@ User clicks trust signal link
  Full page renders     └──────────────┘
  with original CSS
  inside modal
-```
-
-### Bundle Picker
-
-```
-Theme Customizer
-  bundle_img_fit / bundle_img_ratio
-        │
-        ▼
- CSS Custom Properties
-  --pia-bundle-img-fit
-  --pia-bundle-img-ratio
-        │
-        ▼
- .product-info-advanced__bundle-img
-  object-fit: var(--pia-bundle-img-fit)
-  aspect-ratio: var(--pia-bundle-img-ratio)
-        │
-        ▼
- User selects bundle → JS updates
- price, quantity, variant fields
- → Add to Cart form submits
 ```
 
 ### Main Image Badge
@@ -167,11 +263,26 @@ Schema settings
 | Badge icon / image | Image | Optional icon shown beside badge text |
 | Badge icon size | Range (16–80px) | Size of the custom badge image |
 
-### Bundle Card — Image
+### 📦 Bundle Card — Image & Display
 | Setting | Type | Description |
 |---|---|---|
-| Image fit | Select | `cover` / `contain` / `fill` / `auto` |
-| Aspect ratio | Select | `1:1 Square` / `4:5 Portrait` / `Auto` |
+| Bundle title | Text | Label shown above the bundle card |
+| Bundle image | Image | Product image for this bundle option |
+| **Image fit** | Select | `cover` / `contain` / `fill` / `auto` — controls how the image fills its container |
+| **Aspect ratio** | Select | `1:1 Square` / `4:5 Portrait` / `Auto` — sets card proportions |
+| Bundle variant | Variant picker | The product variant this bundle card selects |
+| Bundle quantity | Number | How many units this bundle adds to cart |
+| Bundle price label | Text | Optional price or saving label (e.g. "Save 20%") |
+
+### 🔄 Subscription Toggle
+| Setting | Type | Description |
+|---|---|---|
+| Show subscription toggle | Checkbox | Enable/disable the subscribe & save toggle |
+| Default state | Select | Start on `One-time` or `Subscribe & Save` |
+| Subscribe label | Text | Label for the subscribe option (e.g. "Subscribe & Save") |
+| One-time label | Text | Label for the one-time option (e.g. "One-time Purchase") |
+| Saving badge text | Text | Badge shown on subscribe option (e.g. "Save 15%") |
+| Selling plan | Selling plan | The Shopify selling plan to inject when subscribe is active |
 
 ### Trust Signals
 | Setting | Type | Description |
@@ -199,23 +310,38 @@ Schema settings
 | Any Online Store 2.0 theme | Copy `sections/product-info-advanced.liquid`, `assets/product-info-advanced.css`, `assets/product-info-advanced.js` into your theme |
 | Shopify pages for modal | `/pages/` URLs load fully in the popup modal with all CSS preserved |
 | External URLs for modal | Embedded via iframe — works on sites that allow framing; "Open in new tab" fallback always visible |
-| Subscription apps | Subscription toggle is self-contained; compatible with any app that processes the standard Shopify subscription selling plan form fields |
-| Bundle apps | Bundle picker is a standalone Liquid + JS implementation; no external app required |
+| 📦 **Bundle — no app needed** | Bundle picker is a fully self-contained Liquid + JS implementation. Replaces Kaching, Bundle Bear, and similar apps for standard bundle UX |
+| 🔄 **Subscription — any app** | Toggle injects/removes the standard Shopify `selling_plan` field. Works with Recharge, Skio, Bold, native Shopify Subscriptions, or any app that reads selling plan form data |
 
 ---
 
 ## 🧪 Testing Checklist
 
+**Trust Signals & Modal**
 - [ ] Trust Signal pulse dot aligns correctly with other list items
 - [ ] Flag text appears after flag image in each trust signal
 - [ ] "Open Popup" modal opens and displays page content
 - [ ] Modal close button (×) dismisses the modal
+
+**Media & Badge**
 - [ ] Media Carousel shows 2.5 cards on mobile when set
-- [ ] Bundle image respects configured fit and aspect ratio
 - [ ] Main Image Badge appears in the correct corner with correct styling
 - [ ] Badge custom icon resizes with the icon size slider
-- [ ] Subscription toggle switches between one-time and subscribe price
-- [ ] Add to Cart form submits correctly
+
+**📦 Bundle**
+- [ ] Bundle cards display with correct image, title, and price label
+- [ ] Selecting a bundle card updates the displayed price instantly
+- [ ] The correct variant ID and quantity are passed to the ATC form
+- [ ] Bundle image respects the configured fit and aspect ratio settings
+- [ ] Add to Cart submits the selected bundle variant correctly
+
+**🔄 Subscription**
+- [ ] Subscription toggle renders in the configured default state
+- [ ] Clicking "Subscribe & Save" swaps the price to the subscription price
+- [ ] Clicking "One-time" swaps the price back to the one-time price
+- [ ] The `selling_plan` field is present in the form when subscribe is active
+- [ ] The `selling_plan` field is absent from the form when one-time is active
+- [ ] Add to Cart submits the subscription correctly to the store
 
 ---
 
