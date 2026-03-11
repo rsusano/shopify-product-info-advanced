@@ -249,44 +249,46 @@ class ProductInfoAdvanced {
                 const rawUrl = link.getAttribute('href');
                 if (!rawUrl) return;
 
-                // Always fetch as a same-origin relative path to avoid CORS issues.
-                // Works whether the customizer has a relative (/pages/x) or absolute
-                // (https://store.myshopify.com/pages/x) URL stored.
-                // Always convert to a relative path so fetch is same-origin regardless
-                // of whether the saved URL is absolute or uses a different domain alias.
-                let fetchUrl = rawUrl;
-                let isExternal = false;
-                try {
-                    const parsed = new URL(rawUrl, window.location.origin);
-                    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-                        fetchUrl = parsed.pathname + (parsed.search || '');
-                    } else {
-                        isExternal = true;
-                    }
-                } catch (_) { /* keep rawUrl */ }
-
                 modal.classList.add('is-open');
                 modalBody.innerHTML = '<div class="pia-modal-loading"><span></span>Loading…</div>';
 
-                if (isExternal) {
-                    showError(rawUrl, 'External URL: ' + rawUrl);
-                    return;
-                }
+                let isSameOrigin = false;
+                let fetchUrl = rawUrl;
+                try {
+                    const parsed = new URL(rawUrl, window.location.origin);
+                    isSameOrigin = (parsed.origin === window.location.origin);
+                    if (isSameOrigin) {
+                        fetchUrl = parsed.pathname + (parsed.search || '');
+                    }
+                } catch (_) { /* keep rawUrl */ }
 
-                fetch(fetchUrl, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: { 'Accept': 'text/html, */*' }
-                })
-                    .then(r => r.text())
-                    .then(html => {
-                        if (!html || html.trim().length < 50) throw new Error('empty response');
-                        renderHtml(html, rawUrl);
+                if (isSameOrigin) {
+                    // Same-origin Shopify page: fetch then render in srcdoc iframe
+                    // (srcdoc bypasses X-Frame-Options entirely)
+                    fetch(fetchUrl, {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: { 'Accept': 'text/html, */*' }
                     })
-                    .catch(err => {
-                        console.warn('[PIA Modal] Fetch failed:', fetchUrl, err.message);
-                        showError(rawUrl, 'URL tried: ' + fetchUrl + ' — ' + err.message);
-                    });
+                        .then(r => r.text())
+                        .then(html => {
+                            if (!html || html.trim().length < 50) throw new Error('empty response');
+                            renderHtml(html, rawUrl);
+                        })
+                        .catch(err => {
+                            console.warn('[PIA Modal] Fetch failed:', fetchUrl, err.message);
+                            showError(rawUrl, err.message);
+                        });
+                } else {
+                    // External URL: use a direct iframe src.
+                    // Works for sites that allow iframing (no X-Frame-Options deny).
+                    const iframe = document.createElement('iframe');
+                    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-popups');
+                    iframe.style.cssText = 'display:block;width:100%;height:100%;border:0;';
+                    iframe.src = rawUrl;
+                    modalBody.innerHTML = '';
+                    modalBody.appendChild(iframe);
+                }
             });
         });
     }
