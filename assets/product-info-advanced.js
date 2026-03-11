@@ -195,7 +195,7 @@ class ProductInfoAdvanced {
                             <line x1="6" y1="6" x2="18" y2="18"/>
                         </svg>
                     </button>
-                    <iframe class="pia-modal-iframe" src="" title="Info" loading="lazy"></iframe>
+                    <div class="pia-modal-body"></div>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -209,15 +209,48 @@ class ProductInfoAdvanced {
             });
         }
 
-        const iframe = modal.querySelector('.pia-modal-iframe');
+        const modalBody = modal.querySelector('.pia-modal-body');
 
         popupLinks.forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
                 const url = link.getAttribute('href');
                 if (!url) return;
-                iframe.src = url;
+
                 modal.classList.add('is-open');
+                modalBody.innerHTML = '<div class="pia-modal-loading"><span></span>Loading…</div>';
+
+                fetch(url)
+                    .then(r => r.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+                        // Extract the page title
+                        const title = doc.querySelector('h1, h2') || null;
+
+                        // Try common Shopify content selectors in priority order
+                        const content = doc.querySelector('.page-content .rte')
+                            || doc.querySelector('.page__content')
+                            || doc.querySelector('.article-template .rte')
+                            || doc.querySelector('main .rte')
+                            || doc.querySelector('[class*="page"] .rte')
+                            || doc.querySelector('.rte')
+                            || doc.querySelector('main')
+                            || doc.querySelector('[role="main"]')
+                            || doc.body;
+
+                        const heading = title ? `<h2 class="pia-modal-title">${title.textContent.trim()}</h2>` : '';
+                        modalBody.innerHTML = `${heading}<div class="pia-modal-content">${content ? content.innerHTML : ''}</div>`;
+                    })
+                    .catch(() => {
+                        modalBody.innerHTML = `
+                            <div class="pia-modal-error">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <p>Could not load content.</p>
+                                <a href="${url}" target="_blank" rel="noopener">Open in new tab ↗</a>
+                            </div>`;
+                    });
             });
         });
     }

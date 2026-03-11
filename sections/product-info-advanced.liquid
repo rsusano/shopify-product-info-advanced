@@ -104,6 +104,7 @@
     --pia-badge-font-size:       {{ section.settings.badge_font_size | default: 13 }}px;
     --pia-badge-pad-v:           {{ section.settings.badge_pad_v | default: 7 }}px;
     --pia-badge-pad-h:           {{ section.settings.badge_pad_h | default: 14 }}px;
+    --pia-badge-icon-size:       {{ section.settings.badge_icon_size | default: 13 }}px;
     --pia-badge-top:             {{ badge_pos_top }};
     --pia-badge-right:          {{ badge_pos_right }};
     --pia-badge-bottom:         {{ badge_pos_bottom }};
@@ -958,6 +959,16 @@
       "max": 40,
       "step": 2,
       "default": 12
+    },
+    {
+      "type": "range",
+      "id": "badge_icon_size",
+      "label": "Badge Icon Size (px)",
+      "min": 8,
+      "max": 48,
+      "step": 1,
+      "default": 13,
+      "info": "Controls the size of the star icon or custom badge image/SVG"
     },
     {
       "type": "header",
