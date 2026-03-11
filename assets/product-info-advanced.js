@@ -211,45 +211,97 @@ class ProductInfoAdvanced {
 
         const modalBody = modal.querySelector('.pia-modal-body');
 
+        const showError = (url) => {
+            modalBody.innerHTML = `
+                <div class="pia-modal-error">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <p>Could not load content.</p>
+                    <a href="${url}" target="_blank" rel="noopener">Open in new tab ↗</a>
+                </div>`;
+        };
+
+        const renderHtml = (html, url) => {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Strip scripts/styles to avoid execution issues
+                doc.querySelectorAll('script, style, link[rel="stylesheet"]').forEach(el => el.remove());
+
+                // Extract the best h1 title (skip site-level headings)
+                const titleEl = doc.querySelector('main h1, .page-title, h1.title, h1') || null;
+
+                // Ordered list of Shopify content selectors
+                const candidates = [
+                    '.page-content .rte',
+                    '.page__content .rte',
+                    '.page__content',
+                    '.page-content',
+                    '.shopify-policy__container',
+                    'main .rte',
+                    'article .rte',
+                    '.rte',
+                    'main article',
+                    'main',
+                    '[role="main"]'
+                ];
+
+                let contentEl = null;
+                for (const sel of candidates) {
+                    const el = doc.querySelector(sel);
+                    if (el && el.textContent.trim().length > 20) {
+                        contentEl = el;
+                        break;
+                    }
+                }
+
+                // Last resort: use body but strip nav/header/footer
+                if (!contentEl) {
+                    contentEl = doc.body;
+                    contentEl.querySelectorAll('header, footer, nav, .site-header, .site-footer, .header, .footer, .navigation, .breadcrumb, .announcement-bar').forEach(el => el.remove());
+                }
+
+                const titleHtml = titleEl ? `<h2 class="pia-modal-title">${titleEl.textContent.trim()}</h2>` : '';
+                modalBody.innerHTML = titleHtml + '<div class="pia-modal-content">' + contentEl.innerHTML + '</div>';
+            } catch (err) {
+                console.warn('[PIA Modal] Render error:', err);
+                showError(url);
+            }
+        };
+
         popupLinks.forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
-                const url = link.getAttribute('href');
-                if (!url) return;
+                const rawUrl = link.getAttribute('href');
+                if (!rawUrl) return;
+
+                // Always fetch as a same-origin relative path to avoid CORS issues.
+                // Works whether the customizer has a relative (/pages/x) or absolute
+                // (https://store.myshopify.com/pages/x) URL stored.
+                let fetchUrl = rawUrl;
+                try {
+                    const parsed = new URL(rawUrl, window.location.origin);
+                    if (parsed.origin === window.location.origin) {
+                        fetchUrl = parsed.pathname + parsed.search;
+                    }
+                } catch (_) { /* keep rawUrl */ }
 
                 modal.classList.add('is-open');
                 modalBody.innerHTML = '<div class="pia-modal-loading"><span></span>Loading…</div>';
 
-                fetch(url)
-                    .then(r => r.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-
-                        // Extract the page title
-                        const title = doc.querySelector('h1, h2') || null;
-
-                        // Try common Shopify content selectors in priority order
-                        const content = doc.querySelector('.page-content .rte')
-                            || doc.querySelector('.page__content')
-                            || doc.querySelector('.article-template .rte')
-                            || doc.querySelector('main .rte')
-                            || doc.querySelector('[class*="page"] .rte')
-                            || doc.querySelector('.rte')
-                            || doc.querySelector('main')
-                            || doc.querySelector('[role="main"]')
-                            || doc.body;
-
-                        const heading = title ? `<h2 class="pia-modal-title">${title.textContent.trim()}</h2>` : '';
-                        modalBody.innerHTML = `${heading}<div class="pia-modal-content">${content ? content.innerHTML : ''}</div>`;
+                fetch(fetchUrl, {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: { 'Accept': 'text/html' }
+                })
+                    .then(r => {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.text();
                     })
-                    .catch(() => {
-                        modalBody.innerHTML = `
-                            <div class="pia-modal-error">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                <p>Could not load content.</p>
-                                <a href="${url}" target="_blank" rel="noopener">Open in new tab ↗</a>
-                            </div>`;
+                    .then(html => renderHtml(html, rawUrl))
+                    .catch(err => {
+                        console.warn('[PIA Modal] Fetch failed:', fetchUrl, err);
+                        showError(rawUrl);
                     });
             });
         });
