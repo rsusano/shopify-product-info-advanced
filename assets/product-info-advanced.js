@@ -224,55 +224,22 @@ class ProductInfoAdvanced {
 
         const renderHtml = (html, url) => {
             try {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
+                // Inject a <base> tag so all relative URLs (CSS, images, links)
+                // resolve correctly inside the srcdoc iframe.
+                const base = `<base href="${window.location.origin}/">`;
+                const htmlWithBase = html.replace(/<head([^>]*)>/i, (m) => m + base);
 
-                // Strip scripts/styles to avoid execution issues
-                doc.querySelectorAll('script, style, link[rel="stylesheet"]').forEach(el => el.remove());
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('sandbox', 'allow-same-origin allow-popups allow-forms');
+                iframe.style.cssText = 'display:block;width:100%;height:100%;border:0;';
+                // srcdoc renders inline HTML, bypassing X-Frame-Options completely
+                iframe.srcdoc = htmlWithBase;
 
-                // Extract the best h1 title (skip site-level headings)
-                const titleEl = doc.querySelector('main h1, .page-title, h1.title, h1') || null;
-
-                // Ordered list of Shopify content selectors
-                const candidates = [
-                    '.page-content .rte',
-                    '.page__content .rte',
-                    '.page__content',
-                    '.page-content',
-                    '.shopify-policy__container',
-                    'main .rte',
-                    'article .rte',
-                    '.rte',
-                    'main article',
-                    'main',
-                    '[role="main"]'
-                ];
-
-                let contentEl = null;
-                for (const sel of candidates) {
-                    const el = doc.querySelector(sel);
-                    if (el && el.textContent.trim().length > 20) {
-                        contentEl = el;
-                        break;
-                    }
-                }
-
-                // Last resort: use body but strip nav/header/footer/scripts
-                if (!contentEl) {
-                    contentEl = doc.body;
-                    contentEl.querySelectorAll('header, footer, nav, .site-header, .site-footer, .header, .footer, .navigation, .breadcrumb, .announcement-bar, script, style, noscript').forEach(el => el.remove());
-                }
-
-                const finalHtml = contentEl ? contentEl.innerHTML : '';
-                if (!finalHtml || finalHtml.trim().length < 20) {
-                    throw new Error('no usable content found');
-                }
-
-                const titleHtml = titleEl ? `<h2 class="pia-modal-title">${titleEl.textContent.trim()}</h2>` : '';
-                modalBody.innerHTML = titleHtml + '<div class="pia-modal-content">' + finalHtml + '</div>';
+                modalBody.innerHTML = '';
+                modalBody.appendChild(iframe);
             } catch (err) {
                 console.warn('[PIA Modal] Render error:', err.message);
-                showError(url, 'Parse error: ' + err.message);
+                showError(url, 'Render error: ' + err.message);
             }
         };
 
