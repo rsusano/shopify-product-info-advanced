@@ -280,14 +280,20 @@ class ProductInfoAdvanced {
                             showError(rawUrl, err.message);
                         });
                 } else {
-                    // External URL: use a direct iframe src.
-                    // Works for sites that allow iframing (no X-Frame-Options deny).
+                    // External URL: try direct iframe src.
+                    // If the site blocks embedding (X-Frame-Options), show a friendly fallback bar.
                     const iframe = document.createElement('iframe');
                     iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-popups');
-                    iframe.style.cssText = 'display:block;width:100%;height:100%;border:0;';
+                    iframe.style.cssText = 'display:block;width:100%;flex:1;min-height:0;border:0;';
                     iframe.src = rawUrl;
+
+                    const bar = document.createElement('div');
+                    bar.className = 'pia-modal-ext-bar';
+                    bar.innerHTML = `<span>Can&#39;t see the page?</span><a href="${rawUrl}" target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>`;
+
                     modalBody.innerHTML = '';
                     modalBody.appendChild(iframe);
+                    modalBody.appendChild(bar);
                 }
             });
         });
