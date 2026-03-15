@@ -158,7 +158,7 @@
     {%- comment -%} ================================
       LEFT COLUMN
     ================================ {%- endcomment -%}
-    <div class="product-info-advanced__left{% if section.settings.left_sticky %} is-sticky{% endif %}" style="--pia-dt-offset: {{ section.settings.image_desktop_offset | default: 0 }}px;">
+    <div class="product-info-advanced__left{% unless section.settings.left_sticky %} is-not-sticky{% endunless %}" style="--pia-dt-offset: {{ section.settings.image_desktop_offset | default: 0 }}px;">
       <div class="product-info-advanced__media">
         
         {%- comment -%} Main Image (wrapped for edge-arrow positioning) {%- endcomment -%}
@@ -292,7 +292,13 @@
             assign mc_img_fit = block.settings.image_fit | default: 'cover'
             assign mc_dot_color = block.settings.dot_color
             assign mc_dot_active = block.settings.dot_active_color
+            assign mc_arrow_sz = block.settings.mc_arrow_size | default: 44
+            assign mc_arrow_mob = block.settings.mc_arrow_mobile_size | default: 36
           -%}
+          <style>
+            [data-pia-media-carousel="{{ block.id }}"] { --mc-arrow-sz: {{ mc_arrow_sz }}px; }
+            @media screen and (max-width: 768px) { [data-pia-media-carousel="{{ block.id }}"] { --mc-arrow-sz: {{ mc_arrow_mob }}px; } }
+          </style>
           <div class="{{ mc_classes }}"
             data-pia-media-carousel="{{ block.id }}"
             data-cards-desktop="{{ dt_cards }}"
@@ -344,10 +350,14 @@
                 </div>
               </div>
               {%- if block.settings.show_arrows or block.settings.show_dots -%}
-                <div class="product-info-advanced__reviews-nav">
+                {%- assign mc_nav_has_bg = false -%}
+                {%- if block.settings.nav_bg != blank -%}{%- assign mc_nav_has_bg = true -%}{%- endif -%}
+                <div class="product-info-advanced__reviews-nav"{% if mc_nav_has_bg %} style="background: {{ block.settings.nav_bg }}; border-radius: {{ block.settings.nav_radius | default: 40 }}px; padding: {{ block.settings.nav_pad_v | default: 8 }}px {{ block.settings.nav_pad_h | default: 16 }}px;"{% endif %}>
                   {%- if block.settings.show_arrows -%}
-                    <button type="button" class="product-info-advanced__reviews-arrow product-info-advanced__mc-prev" aria-label="Previous">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <button type="button" class="product-info-advanced__reviews-arrow product-info-advanced__mc-prev{% if block.settings.mc_prev_image != blank or block.settings.mc_prev_svg != blank %} is-custom-icon{% endif %}" aria-label="Previous">
+                      {%- if block.settings.mc_prev_svg != blank -%}{{ block.settings.mc_prev_svg }}
+                      {%- elsif block.settings.mc_prev_image != blank -%}<img src="{{ block.settings.mc_prev_image | image_url: width: 100 }}" alt="" width="44" height="44" loading="lazy">
+                      {%- else -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>{%- endif -%}
                     </button>
                   {%- endif -%}
                   {%- if block.settings.show_dots -%}
@@ -362,8 +372,10 @@
                     </div>
                   {%- endif -%}
                   {%- if block.settings.show_arrows -%}
-                    <button type="button" class="product-info-advanced__reviews-arrow product-info-advanced__mc-next" aria-label="Next">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    <button type="button" class="product-info-advanced__reviews-arrow product-info-advanced__mc-next{% if block.settings.mc_next_image != blank or block.settings.mc_next_svg != blank %} is-custom-icon{% endif %}" aria-label="Next">
+                      {%- if block.settings.mc_next_svg != blank -%}{{ block.settings.mc_next_svg }}
+                      {%- elsif block.settings.mc_next_image != blank -%}<img src="{{ block.settings.mc_next_image | image_url: width: 100 }}" alt="" width="44" height="44" loading="lazy">
+                      {%- else -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>{%- endif -%}
                     </button>
                   {%- endif -%}
                 </div>
@@ -889,7 +901,13 @@
                     assign mc_img_fit = block.settings.image_fit | default: 'cover'
                     assign mc_dot_color = block.settings.dot_color
                     assign mc_dot_active = block.settings.dot_active_color
+                    assign mc_arrow_sz = block.settings.mc_arrow_size | default: 44
+                    assign mc_arrow_mob = block.settings.mc_arrow_mobile_size | default: 36
                   -%}
+                  <style>
+                    [data-pia-media-carousel="{{ block.id }}"] { --mc-arrow-sz: {{ mc_arrow_sz }}px; }
+                    @media screen and (max-width: 768px) { [data-pia-media-carousel="{{ block.id }}"] { --mc-arrow-sz: {{ mc_arrow_mob }}px; } }
+                  </style>
                   <div class="{{ mc_classes }}"
                     data-pia-media-carousel="{{ block.id }}"
                     data-cards-desktop="{{ dt_cards }}"
@@ -941,10 +959,14 @@
                         </div>
                       </div>
                       {%- if block.settings.show_arrows or block.settings.show_dots -%}
-                        <div class="product-info-advanced__reviews-nav">
+                        {%- assign mc_nav_has_bg = false -%}
+                        {%- if block.settings.nav_bg != blank -%}{%- assign mc_nav_has_bg = true -%}{%- endif -%}
+                        <div class="product-info-advanced__reviews-nav"{% if mc_nav_has_bg %} style="background: {{ block.settings.nav_bg }}; border-radius: {{ block.settings.nav_radius | default: 40 }}px; padding: {{ block.settings.nav_pad_v | default: 8 }}px {{ block.settings.nav_pad_h | default: 16 }}px;"{% endif %}>
                           {%- if block.settings.show_arrows -%}
-                            <button type="button" class="product-info-advanced__reviews-arrow product-info-advanced__mc-prev" aria-label="Previous">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            <button type="button" class="product-info-advanced__reviews-arrow product-info-advanced__mc-prev{% if block.settings.mc_prev_image != blank or block.settings.mc_prev_svg != blank %} is-custom-icon{% endif %}" aria-label="Previous">
+                              {%- if block.settings.mc_prev_svg != blank -%}{{ block.settings.mc_prev_svg }}
+                              {%- elsif block.settings.mc_prev_image != blank -%}<img src="{{ block.settings.mc_prev_image | image_url: width: 100 }}" alt="" width="44" height="44" loading="lazy">
+                              {%- else -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>{%- endif -%}
                             </button>
                           {%- endif -%}
                           {%- if block.settings.show_dots -%}
@@ -959,8 +981,10 @@
                             </div>
                           {%- endif -%}
                           {%- if block.settings.show_arrows -%}
-                            <button type="button" class="product-info-advanced__reviews-arrow product-info-advanced__mc-next" aria-label="Next">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            <button type="button" class="product-info-advanced__reviews-arrow product-info-advanced__mc-next{% if block.settings.mc_next_image != blank or block.settings.mc_next_svg != blank %} is-custom-icon{% endif %}" aria-label="Next">
+                              {%- if block.settings.mc_next_svg != blank -%}{{ block.settings.mc_next_svg }}
+                              {%- elsif block.settings.mc_next_image != blank -%}<img src="{{ block.settings.mc_next_image | image_url: width: 100 }}" alt="" width="44" height="44" loading="lazy">
+                              {%- else -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>{%- endif -%}
                             </button>
                           {%- endif -%}
                         </div>
@@ -2222,6 +2246,18 @@
         { "type": "checkbox", "id": "show_dots", "label": "Show Dots", "default": true },
         { "type": "color", "id": "dot_color", "label": "Dot Color (Inactive)", "info": "Leave blank for default." },
         { "type": "color", "id": "dot_active_color", "label": "Dot Color (Active)", "info": "Leave blank to use brand color." },
+        { "type": "header", "content": "Navigation Bar Background" },
+        { "type": "color", "id": "nav_bg", "label": "Nav Background Color", "info": "Adds a background behind the dots/arrows. Leave blank for none." },
+        { "type": "range", "id": "nav_radius", "label": "Nav Background Radius", "min": 0, "max": 60, "step": 2, "unit": "px", "default": 40 },
+        { "type": "range", "id": "nav_pad_v", "label": "Nav Padding (Vertical)", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 8 },
+        { "type": "range", "id": "nav_pad_h", "label": "Nav Padding (Horizontal)", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 16 },
+        { "type": "header", "content": "Navigation Arrows" },
+        { "type": "range", "id": "mc_arrow_size", "label": "Arrow Size (Desktop)", "min": 20, "max": 80, "step": 2, "unit": "px", "default": 44 },
+        { "type": "range", "id": "mc_arrow_mobile_size", "label": "Arrow Size (Mobile)", "min": 16, "max": 64, "step": 2, "unit": "px", "default": 36 },
+        { "type": "image_picker", "id": "mc_prev_image", "label": "Custom Prev Arrow (Image)" },
+        { "type": "textarea", "id": "mc_prev_svg", "label": "Custom Prev Arrow (SVG code)" },
+        { "type": "image_picker", "id": "mc_next_image", "label": "Custom Next Arrow (Image)" },
+        { "type": "textarea", "id": "mc_next_svg", "label": "Custom Next Arrow (SVG code)" },
         { "type": "header", "content": "Media Display" },
         {
           "type": "select",
