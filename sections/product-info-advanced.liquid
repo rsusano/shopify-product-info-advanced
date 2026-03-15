@@ -410,15 +410,23 @@
                 {%- assign r_text = block.settings.text | replace: '<p>', '' | replace: '</p>', '' | strip -%}
                 {%- assign r_star_count  = block.settings.star_count  | default: 5 -%}
                 {%- assign r_star_filled = block.settings.star_filled | default: 5 -%}
-                <div class="product-info-advanced__rating{{ bc }}" {{ block.shopify_attributes }}
-                  style="
+                <style>
+                  .pia-rating-{{ block.id }} {
                     --pia-rating-font-size: {{ block.settings.font_size }}px;
                     --pia-rating-font-weight: {{ block.settings.font_weight }};
                     --pia-rating-text-transform: {{ block.settings.text_transform }};
                     --pia-rating-star-size: {{ block.settings.star_size }}px;
                     --pia-rating-star-color: {{ block.settings.star_color }};
                     --pia-rating-star-empty: {{ block.settings.star_empty_color }};
-                  ">
+                  }
+                  @media screen and (max-width: 768px) {
+                    .pia-rating-{{ block.id }} {
+                      --pia-rating-font-size: {{ block.settings.mobile_font_size }}px;
+                      --pia-rating-star-size: {{ block.settings.mobile_star_size }}px;
+                    }
+                  }
+                </style>
+                <div class="product-info-advanced__rating{{ bc }} pia-rating-{{ block.id }}" {{ block.shopify_attributes }}>
                   <div class="product-info-advanced__stars">
                     {%- for i in (1..r_star_count) -%}
                       {%- if i > r_star_filled -%}
@@ -1618,6 +1626,23 @@
           "id": "icon_svg",
           "label": "Custom Star SVG",
           "info": "Paste raw SVG. Replaces the default star shape. Image takes priority if both are set."
+        },
+        { "type": "header", "content": "Mobile" },
+        {
+          "type": "range",
+          "id": "mobile_font_size",
+          "label": "Font Size (Mobile)",
+          "min": 8, "max": 24, "step": 1, "unit": "px",
+          "default": 11,
+          "info": "Applies on screens 768px and below."
+        },
+        {
+          "type": "range",
+          "id": "mobile_star_size",
+          "label": "Star Size (Mobile)",
+          "min": 8, "max": 40, "step": 1, "unit": "px",
+          "default": 14,
+          "info": "Applies on screens 768px and below."
         },
         { "type": "header", "content": "Visibility" },
         { "type": "checkbox", "id": "show_on_desktop", "label": "Show on Desktop", "default": true },
