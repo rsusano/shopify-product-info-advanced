@@ -47,6 +47,9 @@
       padding-top: {{ section.settings.mobile_padding_top }}px;
       padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
     }
+    #shopify-section-{{ section.id }} .product-announcement-bar__text {
+      font-size: {{ section.settings.mobile_font_size }}px;
+    }
   }
 </style>
 
@@ -192,6 +195,17 @@
         { "value": "capitalize", "label": "Capitalize Each Word" }
       ],
       "default": "uppercase"
+    },
+    {
+      "type": "range",
+      "id": "mobile_font_size",
+      "label": "Font Size (Mobile)",
+      "min": 8,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 11,
+      "info": "Applies on screens 768px and below."
     },
     {
       "type": "header",
