@@ -408,14 +408,21 @@
               
               {%- when 'rating' -%}
                 {%- assign r_text = block.settings.text | replace: '<p>', '' | replace: '</p>', '' | strip -%}
-                {%- assign r_star_count  = block.settings.star_count  | default: 5 -%}
-                {%- assign r_star_filled = block.settings.star_filled | default: 5 -%}
+                {%- assign r_star_count   = block.settings.star_count | default: 5 -%}
+                {%- assign r_filled_raw   = block.settings.star_filled | default: '5' -%}
+                {%- assign r_filled_parts = r_filled_raw | split: '.' -%}
+                {%- assign r_filled_int   = r_filled_parts[0] | plus: 0 -%}
+                {%- assign r_has_half     = false -%}
+                {%- if r_filled_parts[1] == '5' -%}{%- assign r_has_half = true -%}{%- endif -%}
+                {%- assign r_half_pos     = r_filled_int | plus: 1 -%}
                 <style>
                   .pia-rating-{{ block.id }} {
                     --pia-rating-font-size: {{ block.settings.font_size }}px;
                     --pia-rating-font-weight: {{ block.settings.font_weight }};
                     --pia-rating-text-transform: {{ block.settings.text_transform }};
                     --pia-rating-star-size: {{ block.settings.star_size }}px;
+                    --pia-rating-star-gap: {{ block.settings.star_gap }}px;
+                    --pia-rating-text-gap: {{ block.settings.star_text_gap }}px;
                     --pia-rating-star-color: {{ block.settings.star_color }};
                     --pia-rating-star-empty: {{ block.settings.star_empty_color }};
                   }
@@ -429,17 +436,34 @@
                 <div class="product-info-advanced__rating{{ bc }} pia-rating-{{ block.id }}" {{ block.shopify_attributes }}>
                   <div class="product-info-advanced__stars">
                     {%- for i in (1..r_star_count) -%}
-                      {%- if i > r_star_filled -%}
-                        {%- assign r_star_cls = 'product-info-advanced__star-icon product-info-advanced__star-icon--empty' -%}
+                      {%- if i <= r_filled_int -%}
+                        {%- if block.settings.icon_image != blank -%}
+                          <img src="{{ block.settings.icon_image | image_url: width: 64 }}" class="product-info-advanced__star-icon" width="{{ block.settings.star_size }}" height="{{ block.settings.star_size }}" alt="" loading="lazy">
+                        {%- elsif block.settings.icon_svg != blank -%}
+                          <span class="product-info-advanced__star-icon">{{ block.settings.icon_svg }}</span>
+                        {%- else -%}
+                          <svg class="product-info-advanced__star-icon" viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 1-5 5 1 7-6-3.5-6 3.5 1-7-5-5 7-1z"/></svg>
+                        {%- endif -%}
+                      {%- elsif r_has_half and i == r_half_pos -%}
+                        {%- if block.settings.icon_image != blank -%}
+                          <img src="{{ block.settings.icon_image | image_url: width: 64 }}" class="product-info-advanced__star-icon product-info-advanced__star-icon--half" width="{{ block.settings.star_size }}" height="{{ block.settings.star_size }}" alt="" loading="lazy">
+                        {%- elsif block.settings.icon_svg != blank -%}
+                          <span class="product-info-advanced__star-icon product-info-advanced__star-icon--half">{{ block.settings.icon_svg }}</span>
+                        {%- else -%}
+                          <svg class="product-info-advanced__star-icon" viewBox="0 0 24 24">
+                            <defs><clipPath id="pia-rhalf-{{ block.id }}"><rect x="0" y="0" width="12" height="24"/></clipPath></defs>
+                            <path d="M12 2l3 6.5 7 1-5 5 1 7-6-3.5-6 3.5 1-7-5-5 7-1z" fill="{{ block.settings.star_empty_color }}"/>
+                            <path d="M12 2l3 6.5 7 1-5 5 1 7-6-3.5-6 3.5 1-7-5-5 7-1z" fill="{{ block.settings.star_color }}" clip-path="url(#pia-rhalf-{{ block.id }})"/>
+                          </svg>
+                        {%- endif -%}
                       {%- else -%}
-                        {%- assign r_star_cls = 'product-info-advanced__star-icon' -%}
-                      {%- endif -%}
-                      {%- if block.settings.icon_image != blank -%}
-                        <img src="{{ block.settings.icon_image | image_url: width: 64 }}" class="{{ r_star_cls }}" width="{{ block.settings.star_size }}" height="{{ block.settings.star_size }}" alt="" loading="lazy">
-                      {%- elsif block.settings.icon_svg != blank -%}
-                        <span class="{{ r_star_cls }}">{{ block.settings.icon_svg }}</span>
-                      {%- else -%}
-                        <svg class="{{ r_star_cls }}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 1-5 5 1 7-6-3.5-6 3.5 1-7-5-5 7-1z"/></svg>
+                        {%- if block.settings.icon_image != blank -%}
+                          <img src="{{ block.settings.icon_image | image_url: width: 64 }}" class="product-info-advanced__star-icon product-info-advanced__star-icon--empty" width="{{ block.settings.star_size }}" height="{{ block.settings.star_size }}" alt="" loading="lazy">
+                        {%- elsif block.settings.icon_svg != blank -%}
+                          <span class="product-info-advanced__star-icon product-info-advanced__star-icon--empty">{{ block.settings.icon_svg }}</span>
+                        {%- else -%}
+                          <svg class="product-info-advanced__star-icon product-info-advanced__star-icon--empty" viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 1-5 5 1 7-6-3.5-6 3.5 1-7-5-5 7-1z"/></svg>
+                        {%- endif -%}
                       {%- endif -%}
                     {%- endfor -%}
                   </div>
@@ -1588,12 +1612,24 @@
           "default": 5
         },
         {
-          "type": "range",
+          "type": "select",
           "id": "star_filled",
           "label": "Filled Stars",
-          "min": 0, "max": 5, "step": 1,
-          "default": 5,
-          "info": "Stars beyond this count show in the empty color."
+          "options": [
+            { "value": "0",   "label": "0" },
+            { "value": "0.5", "label": "0.5" },
+            { "value": "1",   "label": "1" },
+            { "value": "1.5", "label": "1.5" },
+            { "value": "2",   "label": "2" },
+            { "value": "2.5", "label": "2.5" },
+            { "value": "3",   "label": "3" },
+            { "value": "3.5", "label": "3.5" },
+            { "value": "4",   "label": "4" },
+            { "value": "4.5", "label": "4.5" },
+            { "value": "5",   "label": "5" }
+          ],
+          "default": "5",
+          "info": "Half values (e.g. 4.5) render a half-filled star."
         },
         {
           "type": "range",
@@ -1601,6 +1637,20 @@
           "label": "Star Size",
           "min": 10, "max": 48, "step": 1, "unit": "px",
           "default": 16
+        },
+        {
+          "type": "range",
+          "id": "star_gap",
+          "label": "Gap Between Stars",
+          "min": 0, "max": 16, "step": 1, "unit": "px",
+          "default": 2
+        },
+        {
+          "type": "range",
+          "id": "star_text_gap",
+          "label": "Gap: Stars to Text",
+          "min": 0, "max": 32, "step": 1, "unit": "px",
+          "default": 8
         },
         {
           "type": "color",

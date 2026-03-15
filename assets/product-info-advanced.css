@@ -383,7 +383,7 @@
 .product-info-advanced__rating {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--pia-rating-text-gap, 8px);
     font-size: var(--pia-rating-font-size, 13px);
     font-weight: var(--pia-rating-font-weight, 500);
     text-transform: var(--pia-rating-text-transform, none);
@@ -399,7 +399,13 @@
 .product-info-advanced__stars {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: var(--pia-rating-star-gap, 2px);
+}
+
+.product-info-advanced__star-icon--half {
+    -webkit-mask-image: linear-gradient(to right, #000 50%, transparent 50%);
+    mask-image: linear-gradient(to right, #000 50%, transparent 50%);
+    color: var(--pia-rating-star-color, #F59E0B);
 }
 
 .product-info-advanced__star-icon {
