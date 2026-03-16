@@ -15,7 +15,7 @@ A **conversion-focused product page section** for Shopify Online Store 2.0. Buil
 
 ## 📸 Visual Preview
 
-> _Add a screen recording or screenshot here showing the section on a live product page._
+https://github.com/user-attachments/assets/8e23a847-f071-40f5-8c06-2aa086b9eb08
 
 ---
 
