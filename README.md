@@ -15,13 +15,18 @@ A **conversion-focused product page section** and **announcement bar section** f
 
 ## 📸 Visual Preview
 
-Figma-Shopify-Demo.mp4
+https://github.com/user-attachments/assets/8e23a847-f071-40f5-8c06-2aa086b9eb08
 
-<p align="center">
-  <img src="docs/figma-design-desktop.png" width="65%" alt="Desktop Figma Design" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="docs/figma-design-mobile.png" width="27%" alt="Mobile Figma Design" />
-</p>
+<table align="center" border="0" cellpadding="12">
+  <tr>
+    <td align="center"><img src="docs/figma-design-desktop.png" height="360" alt="Desktop Figma Design" /></td>
+    <td align="center"><img src="docs/figma-design-mobile.png" height="360" alt="Mobile Figma Design" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Desktop Design</sub></td>
+    <td align="center"><sub>Mobile Design</sub></td>
+  </tr>
+</table>
 
 ---
 
