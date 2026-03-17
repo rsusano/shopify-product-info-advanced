@@ -1,0 +1,30 @@
+# This repo tracks only the Product Info Advanced and Product Announcement Bar sections.
+# All other EcomLanders theme files are ignored.
+
+# Full theme folders
+blocks/
+config/
+layout/
+locales/
+snippets/
+templates/
+tmp-live/
+docs/
+
+# Full-theme sections (keep product-info-advanced and product-announcement-bar)
+sections/
+!sections/product-info-advanced.liquid
+!sections/product-announcement-bar.liquid
+
+# Full-theme assets (keep product-info-advanced and product-announcement-bar)
+assets/
+!assets/product-info-advanced.css
+!assets/product-info-advanced.js
+!assets/product-announcement-bar.css
+
+# Deploy/utility scripts
+deploy-log.txt
+deploy.ps1
+fetch_asset.js
+push-restore.js
+push.js
