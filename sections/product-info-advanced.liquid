@@ -6,10 +6,15 @@
   assign current_variant = product.selected_or_first_available_variant
 
   assign badge_mx     = section.settings.badge_margin | default: 12 | append: 'px'
+  assign mobile_badge_mx  = section.settings.mobile_badge_margin | default: section.settings.badge_margin | default: 12 | append: 'px'
   assign badge_pos_top    = 'auto'
   assign badge_pos_right  = 'auto'
   assign badge_pos_bottom = 'auto'
   assign badge_pos_left   = 'auto'
+  assign mobile_badge_top = 'auto'
+  assign mobile_badge_right = 'auto'
+  assign mobile_badge_bottom = 'auto'
+  assign mobile_badge_left = 'auto'
   case section.settings.badge_position
     when 'top-left'
       assign badge_pos_top  = badge_mx
@@ -24,6 +29,37 @@
       assign badge_pos_top   = badge_mx
       assign badge_pos_right = badge_mx
   endcase
+  if section.settings.mobile_badge_position != blank
+    case section.settings.mobile_badge_position
+      when 'top-left'
+        assign mobile_badge_top  = mobile_badge_mx
+        assign mobile_badge_left = mobile_badge_mx
+      when 'bottom-right'
+        assign mobile_badge_bottom = mobile_badge_mx
+        assign mobile_badge_right  = mobile_badge_mx
+      when 'bottom-left'
+        assign mobile_badge_bottom = mobile_badge_mx
+        assign mobile_badge_left   = mobile_badge_mx
+      else
+        assign mobile_badge_top   = mobile_badge_mx
+        assign mobile_badge_right = mobile_badge_mx
+    endcase
+  else
+    case section.settings.badge_position
+      when 'top-left'
+        assign mobile_badge_top  = mobile_badge_mx
+        assign mobile_badge_left = mobile_badge_mx
+      when 'bottom-right'
+        assign mobile_badge_bottom = mobile_badge_mx
+        assign mobile_badge_right  = mobile_badge_mx
+      when 'bottom-left'
+        assign mobile_badge_bottom = mobile_badge_mx
+        assign mobile_badge_left   = mobile_badge_mx
+      else
+        assign mobile_badge_top   = mobile_badge_mx
+        assign mobile_badge_right = mobile_badge_mx
+    endcase
+  endif
 -%}
 
 <style>
@@ -144,6 +180,14 @@
   @media screen and (max-width: 768px) {
     #shopify-section-{{ section.id }} .product-info-advanced {
       --pia-gallery-arrow-size: {{ section.settings.gallery_arrow_mobile_size | default: 36 }}px;
+      --pia-badge-font-size:   {{ section.settings.mobile_badge_font_size | default: section.settings.badge_font_size | default: 13 }}px;
+      --pia-badge-pad-v:      {{ section.settings.mobile_badge_pad_v | default: section.settings.badge_pad_v | default: 7 }}px;
+      --pia-badge-pad-h:      {{ section.settings.mobile_badge_pad_h | default: section.settings.badge_pad_h | default: 14 }}px;
+      --pia-badge-icon-size:  {{ section.settings.mobile_badge_icon_size | default: section.settings.badge_icon_size | default: 13 }}px;
+      --pia-badge-top:        {{ mobile_badge_top }};
+      --pia-badge-right:      {{ mobile_badge_right }};
+      --pia-badge-bottom:     {{ mobile_badge_bottom }};
+      --pia-badge-left:       {{ mobile_badge_left }};
     }
     #shopify-section-{{ section.id }} .product-info-advanced__left {
       margin-top: var(--pia-mobile-img-mt, 0px);
@@ -676,7 +720,7 @@
                 
                 <div class="product-info-advanced__bundle-wrapper{{ bc }}" {{ block.shopify_attributes }}>
                   {%- if block.settings.social_proof != blank -%}
-                    <div class="product-info-advanced__social-proof">{{ block.settings.social_proof | replace: '<p>', '' | replace: '</p>', '' }}</div>
+                    <div class="product-info-advanced__social-proof" data-pia-social-proof style="{% if block.settings.social_proof_font_size != blank and block.settings.social_proof_font_size > 0 %}font-size: {{ block.settings.social_proof_font_size }}px; {% endif %}{% if block.settings.social_proof_font_weight %}font-weight: {{ block.settings.social_proof_font_weight }}; {% endif %}">{{ block.settings.social_proof }}</div>
                   {%- endif -%}
                   
                   <div 
@@ -1169,6 +1213,79 @@
       "step": 1,
       "default": 13,
       "info": "Controls the size of the star icon or custom badge image/SVG"
+    },
+    {
+      "type": "header",
+      "content": "Mobile Badge"
+    },
+    {
+      "type": "range",
+      "id": "mobile_badge_font_size",
+      "label": "Badge Font Size (Mobile)",
+      "min": 8,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 11,
+      "info": "Applies on screens 768px and below."
+    },
+    {
+      "type": "range",
+      "id": "mobile_badge_pad_v",
+      "label": "Badge Padding – Vertical (Mobile)",
+      "min": 2,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 5,
+      "info": "Applies on mobile."
+    },
+    {
+      "type": "range",
+      "id": "mobile_badge_pad_h",
+      "label": "Badge Padding – Horizontal (Mobile)",
+      "min": 4,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 10,
+      "info": "Applies on mobile."
+    },
+    {
+      "type": "range",
+      "id": "mobile_badge_icon_size",
+      "label": "Badge Icon Size (Mobile)",
+      "min": 8,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 11,
+      "info": "Applies on mobile."
+    },
+    {
+      "type": "select",
+      "id": "mobile_badge_position",
+      "label": "Badge Position (Mobile)",
+      "options": [
+        { "value": "", "label": "Same as desktop" },
+        { "value": "top-right",    "label": "Top Right" },
+        { "value": "top-left",     "label": "Top Left" },
+        { "value": "bottom-right", "label": "Bottom Right" },
+        { "value": "bottom-left",  "label": "Bottom Left" }
+      ],
+      "default": "",
+      "info": "Override position on mobile. Leave empty to match desktop."
+    },
+    {
+      "type": "range",
+      "id": "mobile_badge_margin",
+      "label": "Badge Offset from Corner (Mobile)",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 8,
+      "info": "Applies on mobile."
     },
     {
       "type": "header",
@@ -2061,7 +2178,9 @@
       "name": "Bundle Option",
       "settings": [
         { "type": "image_picker", "id": "image", "label": "Bundle Image" },
-        { "type": "richtext", "id": "social_proof", "label": "Social Proof Banner (above card)", "info": "e.g. '<p>92% of customers choose: <strong>Buy 2, Get 1 Free</strong></p>'" },
+        { "type": "richtext", "id": "social_proof", "label": "Social Proof Banner (above card)", "info": "Bold = bold. Italic = italic. Use [[ and ]] to highlight words with a color. Example: 92% of customers choose: [[Buy 2, Get 1 Free]]" },
+        { "type": "range", "id": "social_proof_font_size", "label": "Font Size", "min": 10, "max": 24, "step": 1, "unit": "px", "default": 0, "info": "Override section size. 0 = use section default." },
+        { "type": "select", "id": "social_proof_font_weight", "label": "Font Weight", "options": [ { "value": "", "label": "Section default (700)" }, { "value": "400", "label": "Normal" }, { "value": "500", "label": "Medium" }, { "value": "600", "label": "Semibold" }, { "value": "700", "label": "Bold" }, { "value": "800", "label": "Extrabold" } ], "default": "", "info": "Base weight. Bold text will be heavier." },
         { "type": "text", "id": "save_badge", "label": "Save Badge Text", "default": "Save 51%" },
         { "type": "checkbox", "id": "best_value", "label": "Show Best Value Badge", "default": false },
         { "type": "text", "id": "title", "label": "Title", "default": "Buy 1 Bottle" },

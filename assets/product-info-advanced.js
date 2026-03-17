@@ -46,6 +46,7 @@ class ProductInfoAdvanced {
         this.initSubscription();
         this.initFormSubmit();
         this.initTrustPopups();
+        this.initSocialProofHighlights();
 
         // Initial Render
         if (this.bundles.length > 0) {
@@ -279,6 +280,12 @@ class ProductInfoAdvanced {
         applyPos(idx, true);
         syncDots(isInfinite ? realIdx(idx) : idx);
         syncBtns();
+    }
+
+    initSocialProofHighlights() {
+        this.container.querySelectorAll('[data-pia-social-proof]').forEach(el => {
+            el.innerHTML = el.innerHTML.replace(/\[\[([\s\S]*?)\]\]/g, '<span class="pia-social-highlight">$1</span>');
+        });
     }
 
     initTrustPopups() {

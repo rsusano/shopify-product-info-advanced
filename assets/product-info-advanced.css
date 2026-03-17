@@ -594,10 +594,24 @@
     letter-spacing: 0.01em;
 }
 
+.product-info-advanced__social-proof p {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
 .product-info-advanced__social-proof strong,
-.product-info-advanced__social-proof em {
+.product-info-advanced__social-proof b {
+    font-weight: 900;
+}
+
+.product-info-advanced__social-proof em,
+.product-info-advanced__social-proof i {
+    font-style: italic;
+}
+
+.product-info-advanced__social-proof .pia-social-highlight {
     color: var(--pia-social-highlight-color);
-    font-style: normal;
 }
 
 .product-info-advanced__social-proof+.product-info-advanced__bundle {
