@@ -42,6 +42,10 @@
     #shopify-section-{{ section.id }} {
       margin-top: {{ section.settings.mobile_margin_top }}px;
       margin-bottom: {{ section.settings.mobile_margin_bottom }}px;
+      --pab-sep-size: {{ section.settings.mobile_separator_size }}px;
+      {%- if section.settings.mobile_separator_color != blank -%}
+      --pab-sep-color: {{ section.settings.mobile_separator_color }};
+      {%- endif -%}
     }
     #shopify-section-{{ section.id }} .product-announcement-bar {
       padding-top: {{ section.settings.mobile_padding_top }}px;
@@ -63,7 +67,6 @@
       -%}
       <ul class="product-announcement-bar__list">
         {%- for block in section.blocks -%}
-          {%- assign text_clean = block.settings.text | replace: '<p>', '' | replace: '</p>', '' | strip -%}
           <li class="product-announcement-bar__item" {{ block.shopify_attributes }}>
             {%- if block.settings.icon_image != blank -%}
               <span class="product-announcement-bar__icon" style="width:{{ block.settings.icon_size }}px;height:{{ block.settings.icon_size }}px;">
@@ -74,8 +77,24 @@
                 {{ block.settings.icon_svg }}
               </span>
             {%- endif -%}
-            {%- if text_clean != blank -%}
-              <span class="product-announcement-bar__text">{{ text_clean }}</span>
+            {%- if block.settings.text != blank -%}
+              <span class="product-announcement-bar__text">
+                {%- assign msg = block.settings.text | replace: '<p>', '' | replace: '</p>', '' | strip -%}
+                {%- assign parts = msg | split: '[[' -%}
+                {%- for part in parts -%}
+                  {%- if part contains ']]' -%}
+                    {%- assign sub = part | split: ']]' -%}
+                    {%- if block.settings.highlight_color != blank -%}
+                      <span class="pab-highlight" style="color:{{ block.settings.highlight_color }}">{{ sub[0] }}</span>
+                    {%- else -%}
+                      {{ sub[0] }}
+                    {%- endif -%}
+                    {%- if sub[1] != blank -%}{{ sub[1] }}{%- endif -%}
+                  {%- else -%}
+                    {{ part }}
+                  {%- endif -%}
+                {%- endfor -%}
+              </span>
             {%- endif -%}
           </li>
           {%- unless forloop.last -%}
@@ -327,6 +346,27 @@
     },
     {
       "type": "header",
+      "content": "Mobile Separator"
+    },
+    {
+      "type": "range",
+      "id": "mobile_separator_size",
+      "label": "Separator Size (Mobile)",
+      "min": 6,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 10,
+      "info": "Applies on screens 768px and below."
+    },
+    {
+      "type": "color",
+      "id": "mobile_separator_color",
+      "label": "Separator Color (Mobile)",
+      "info": "Leave empty to use the desktop separator color."
+    },
+    {
+      "type": "header",
       "content": "Custom Separator Icon"
     },
     {
@@ -386,8 +426,14 @@
           "type": "richtext",
           "id": "text",
           "label": "Text",
-          "info": "Use the editor toolbar to bold or italicise specific words.",
-          "default": "<p>LIMITED TIME OFFER - SAVE UP TO 71% OFF</p>"
+          "info": "Use [[ and ]] to highlight words with a custom color. Example: SAVE [[UP TO 71%]] OFF",
+          "default": "<p>LIMITED TIME OFFER - SAVE [[UP TO 71%]] OFF</p>"
+        },
+        {
+          "type": "color",
+          "id": "highlight_color",
+          "label": "Highlight Color",
+          "info": "Text color for words wrapped in [[brackets]]. Leave empty for default."
         },
         {
           "type": "header",
