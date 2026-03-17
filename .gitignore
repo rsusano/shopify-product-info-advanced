@@ -9,7 +9,6 @@ locales/
 snippets/
 templates/
 tmp-live/
-docs/
 
 # Full-theme sections (keep product-info-advanced and product-announcement-bar)
 sections/
