@@ -6,11 +6,13 @@ on:
     paths:
       - 'sections/**'
       - 'assets/**'
+      - '.theme-check.yml'
   pull_request:
     branches: [master]
     paths:
       - 'sections/**'
       - 'assets/**'
+      - '.theme-check.yml'
 
 jobs:
   theme-check:
