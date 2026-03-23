@@ -7,12 +7,14 @@ on:
       - 'sections/**'
       - 'assets/**'
       - '.theme-check.yml'
+      - '.github/**'
   pull_request:
     branches: [master]
     paths:
       - 'sections/**'
       - 'assets/**'
       - '.theme-check.yml'
+      - '.github/**'
 
 jobs:
   theme-check:
