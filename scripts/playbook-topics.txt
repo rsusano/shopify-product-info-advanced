@@ -1,0 +1,108 @@
+Theme preview and draft products before launch
+Variant order and default selection strategy
+Selling plan fields and subscription app compatibility
+Bundle pricing labels that match checkout
+Trust signals and compliance for health claims
+Mobile-first PDP layout and tap targets
+Above-the-fold content and Core Web Vitals
+Image aspect ratios and LCP on product pages
+Lazy loading media without breaking carousels
+JSON-LD Product schema sanity checks
+Review stars and UGC without misleading shoppers
+Urgency copy that stays honest and on-brand
+Cross-sell blocks and distraction on single-SKU PDPs
+Announcement bar vs product section messaging hierarchy
+Color contrast for badges and sale labels
+Form accessibility for quantity and selling plans
+Keyboard navigation for modals and carousels
+Reduced motion and animation preferences
+International pricing and currency display
+Shipping and returns copy near the buy box
+Payment icons and trust row placement
+FAQ placement relative to the buy box
+Sticky ATC patterns and scroll depth
+Duplicate H1 and SEO title alignment
+Meta descriptions from product copy
+Canonical URLs and duplicate product handles
+Structured data errors in Search Console
+Hreflang and multi-market storefronts
+Out-of-stock messaging and back-in-stock flows
+Pre-order and expected ship date copy
+Gift messaging and line item properties
+Selling plan discount display vs cart
+One-time vs subscription default selection ethics
+Quantity rules and bundle quantity sync
+Line item properties and fulfillment notes
+SKU visibility for support and returns
+Barcode and inventory policy in Liquid
+Compare-at pricing and regional regulations
+Sale badges and strikethrough styling
+Inventory thresholds for urgency messaging
+Low-stock warnings without false scarcity
+Cart drawer vs full page cart UX
+Accelerated checkout buttons placement
+Shop Pay and dynamic checkout compatibility
+Apple Pay and wallet flows on mobile
+Pickup availability and location messaging
+Duties and taxes messaging for cross-border
+Return policy links in high-visibility spots
+Warranty and guarantee blocks near ATC
+Size guides and fit content in modals
+Measurement charts and unit consistency
+Material and care instructions clarity
+Allergen and ingredient disclosure patterns
+Supplement facts and disclaimer placement
+Age gates and restricted product flows
+Subscription cancellation policy snippets
+Recurring order frequency copy clarity
+Selling plan group naming in Theme Editor
+Product metafields for PDP rich content
+Metafields for bundle component mapping
+Namespace and key naming conventions
+Metafield definitions and validation rules
+Image metafields for alternate gallery assets
+Video hosting: Shopify files vs external embeds
+Autoplay policies and muted video defaults
+Poster images for video and CLS control
+Alt text strategy for variant images
+Decorative vs informative icons in SVG
+Font loading and FOIT on product templates
+Critical CSS vs section-scoped stylesheets
+Third-party scripts and interaction to next paint
+Tag-based conditional blocks on PDP
+Collection-based merchandising on PDP
+Customer tags and personalized messaging
+B2B catalogs and quantity increments
+Wholesale price display and gating
+Customer accounts and reorder shortcuts
+Loyalty points copy near subscription toggle
+Referral program messaging without clutter
+A/B testing hypotheses for PDP sections
+Event naming for analytics and pixels
+Data layer consistency for add-to-cart
+Server-side vs client-side variant changes
+Hydrogen vs OS 2.0 section portability notes
+Theme Check and CI for section edits
+Git workflow for merchant-specific forks
+Code comments and schema info for editors
+Reusable snippets vs monolithic sections
+CSS variables for brand theming at scale
+Dark mode toggles and product photography
+Seasonal campaigns and section scheduling
+Translation keys and locale files
+RTL layout considerations for PDP blocks
+Print stylesheets for receipts and packing slips
+Email capture timing relative to purchase intent
+SMS compliance and opt-in near forms
+GDPR cookie banners and script loading order
+Accessibility audits with automated tooling
+Screen reader labels for star ratings
+Focus rings for custom-styled buttons
+Error states for invalid variant combinations
+Network failure handling for ATC actions
+Loading states for dynamic price updates
+Safari and iOS form quirks with selling plans
+Chrome vs Firefox video codec fallbacks
+Performance budgets for section JavaScript
+Caching headers for theme assets
+CDN URLs and asset_url best practices

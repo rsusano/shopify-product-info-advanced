@@ -425,6 +425,12 @@ flowchart TD
 
 ---
 
+## 📚 Product page playbooks
+
+Short, topic-focused guides for merchants and developers (SEO, subscriptions, accessibility, performance, and more): [docs/playbooks/README.md](docs/playbooks/README.md).
+
+---
+
 ## 🐛 Troubleshooting
 
 | Issue | What to try |
